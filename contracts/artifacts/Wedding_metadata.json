@@ -1,0 +1,112 @@
+{
+	"compiler": {
+		"version": "0.8.18+commit.87f61d96"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "acceptInvitation",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "agreeOnParticipants",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_date",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_additionalInfo",
+						"type": "string"
+					}
+				],
+				"name": "engage",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_addr",
+						"type": "address"
+					}
+				],
+				"name": "inviteParticipant",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "revokeEngagement",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "voteAgainst",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "wed",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/Wedding.sol": "Wedding"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/Wedding.sol": {
+			"keccak256": "0x5cb66f3b7e262248fff9242571dd771c19f30f3d3907ac0c1684ff543fbf72b1",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://3d31c960714bca049f90768a5d2764e8fb510969bfacc91695acd2b11d7a3df2",
+				"dweb:/ipfs/QmSUPggogX6UtAM9YzZJaHq7w3A5PAufLMQJ8n3baY7VWv"
+			]
+		}
+	},
+	"version": 1
+}
