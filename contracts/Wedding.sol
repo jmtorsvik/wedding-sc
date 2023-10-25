@@ -2,8 +2,11 @@
 
 pragma solidity >=0.8.2 <0.9.0;
 
+// import "@openzeppelin/contracts@5.0.0/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract Wedding {
+contract Wedding is ERC721URIStorage {
     struct Spouse {
         address addr;
         bool isWed;
@@ -13,13 +16,7 @@ contract Wedding {
     Spouse spouse1;
     Spouse spouse2;
 
-    // address address1;
-    // address address2;
-
-    // mapping(address => bool) isWed;
-    // mapping(address => bool) agreedOnParticipants;
-
-    uint256 date;
+    uint256 dateTime;
     string additionalInfo;
 
     struct Participant{
@@ -28,6 +25,7 @@ contract Wedding {
         bool votedAgainst;  
     }
     Participant[] participants;
+    
 
     modifier onlyUnWed() {
         bool isWed = false;
@@ -81,7 +79,8 @@ contract Wedding {
     }
 
     modifier isTimeValid() {
-        require(block.timestamp >= date, "Too early, mate.");
+        uint t = block.timestamp;
+        require(t >= dateTime && t < dateTime + 86400, "Too early, mate.");
         _;
     }
 
@@ -105,13 +104,14 @@ contract Wedding {
         return participants.length;
     }
 
-    function engage(uint256 _date, string memory _additionalInfo) public onlyUnWed {
+    function engage(uint256 _dateTime, string memory _additionalInfo) public onlyUnWed {
         if (spouse1.addr == address(0)) {
             spouse1 = Spouse(msg.sender, false, false, false);
-            date = _date;
+            dateTime = _dateTime;
             additionalInfo = _additionalInfo;
         } else if (spouse2.addr == address(0)) {
             spouse2 = Spouse(msg.sender, false, false, false);
+            mintCertificate();
         }
     }
 
@@ -153,7 +153,48 @@ contract Wedding {
     }
 
     function wed() public onlyEngaged bothAgreedOnParticipants halfHasNotVotedAgainst isTimeValid {
-        spouse1 = Spouse(spouse1.addr, true, spouse1.agreedOnParticipants, spouse1.agreedOnWedding);
-        spouse2 = Spouse(spouse2.addr, true, spouse2.agreedOnParticipants, spouse2.agreedOnWedding);
+        if (!spouse1.agreedOnWedding && msg.sender == spouse1.addr) {
+            spouse1 = Spouse(spouse1.addr, spouse1.isWed, spouse1.agreedOnParticipants, true);
+        } else {
+            spouse2 = Spouse(spouse2.addr, spouse2.isWed, spouse2.agreedOnParticipants, true);
+        }
+
+        if (spouse1.agreedOnWedding && spouse2.agreedOnWedding) {
+            spouse1 = Spouse(spouse1.addr, true, spouse1.agreedOnParticipants, spouse1.agreedOnWedding);
+            spouse2 = Spouse(spouse2.addr, true, spouse2.agreedOnParticipants, spouse2.agreedOnWedding);
+        }
+
+        
+
+    }
+
+
+
+    constructor() ERC721("WeddingCertificate", "WCT") {}
+    using Counters for Counters.Counter;
+    Counters.Counter private currentTokenId;
+
+    
+    
+    
+    // struct Certificate {
+    //     address addr1; 
+    //     address addr2; 
+    //     uint certDateTime;
+    //     string uri_to_file; 
+    // }
+    // Certificate weddingCert; 
+
+
+    function mintCertificate() private {
+        currentTokenId.increment();
+
+        uint256 certId = currentTokenId.current();
+        _safeMint(spouse1.addr, certId);
+
+        // _setTokenURI(certId, "https://www.thoughtco.com/thmb/TghRBdIZMYsnZ5aMEhsGBDcnODM=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/BarackObama-799035cd446c443fb392110c01768ed0.jpg");
+        _setTokenURI(certId, "../data/cert1.json");
+
+        // weddingCert = Certificate(spouse1.addr, spouse2.addr, dateTime, "www.facebook.com"); 
     }
 }
