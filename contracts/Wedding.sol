@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.0;
 // pragma solidity >=0.8.4 <0.9.0;
 
 // import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -8,9 +8,9 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
- 
 import "@openzeppelin/contracts@4.7.0/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts@4.7.0/token/ERC721/extensions/ERC721URIStorage.sol";
+
 
 contract Wedding is ERC721, ERC721URIStorage {
     struct Spouse {
@@ -36,7 +36,7 @@ contract Wedding is ERC721, ERC721URIStorage {
     }
     Participant[] participants;
     
-
+    
     modifier onlyUnWed() {
         bool isWed = false;
 
@@ -70,12 +70,12 @@ contract Wedding is ERC721, ERC721URIStorage {
     }
  
     modifier onlyParticipant() {
-        require(getParticipant(msg.sender).addr != address(0), "Only participant.");
+        require(_getParticipant(msg.sender).addr != address(0), "Only participant.");
         _;
     }
 
     modifier onlyConfirmedParticipant() {
-        require(getParticipant(msg.sender).confirmed, "Only confirmed participants.");
+        require(_getParticipant(msg.sender).confirmed, "Only confirmed participants.");
         _;
     }
 
@@ -104,11 +104,14 @@ contract Wedding is ERC721, ERC721URIStorage {
 
     modifier isTimeValid() {
         uint t = block.timestamp;
-        require(t >= dateTime && t < dateTime + 86400, "Too early, mate.");
+        require(t >= dateTime && t < dateTime + 86400, "Current time must be within 24 hours of the wedding.");
         _;
     }
 
-    function getParticipant(address _addr) view  private returns (Participant memory) {
+    // Finds a participant from a specified address. Returns participant with address 0 if address not in list.
+    // Params:
+    // * _addr: the address to look up in the list
+    function _getParticipant(address _addr) view  private returns (Participant memory) {
         for (uint i = 0; i < participants.length; i++) {
             if (participants[i].addr == _addr) {
                 return participants[i];
@@ -118,7 +121,10 @@ contract Wedding is ERC721, ERC721URIStorage {
         return Participant(address(0), false, false);
     }
 
-    function getParticipantIndex(address _addr) view private returns (uint) {
+    // Finds the index of a specified address in the participant list. Returns length of list if address not in list.
+    // Params:
+    // * _addr: the address to look up in the list
+    function _getParticipantIndex(address _addr) view private returns (uint) {
         for (uint i = 0; i < participants.length; i++) {
             if (participants[i].addr == _addr) {
                 return i;
@@ -128,56 +134,77 @@ contract Wedding is ERC721, ERC721URIStorage {
         return participants.length;
     }
 
+    // This function lets two users engage if they are not already wed.
+    // If the first fiancé engages again, they can set new parameters.
+    // The parameters of the engagement is decided by the first fiancé. 
+    // So the arguments provided by the second fiancé is ignored
+    // Params: 
+    // * _dateTime: Seconds after January 1st 1970, we assume that this is in the future
+    // * _additionalInfo: Optional information about the engagement
     function engage(uint256 _dateTime, string memory _additionalInfo) public onlyUnWed {
-        if (spouse1.addr == address(0)) {
+        if (spouse1.addr == address(0) || spouse1.addr == msg.sender) {
             spouse1 = Spouse(msg.sender, false, false, false);
             dateTime = _dateTime;
             additionalInfo = _additionalInfo;
         } else if (spouse2.addr == address(0)) {
             spouse2 = Spouse(msg.sender, false, false, false);
-            mintCertificate();
         }
     }
 
+    // This function lets the fiancés invite a single participant to the wedding (can be called by both fiancés multiple times).
+    // Params:
+    // * _addr: The address of the invited participant.
     function inviteParticipant(address _addr) public onlyEngaged {
         participants.push(Participant(_addr, false, false));
     }
 
+    // This function lets invited participants accept the invitation to the wedding. 
+    // Each time a participant accepts the invitation, the fiancés must accept the participant list again.
     function acceptInvitation() public onlyParticipant {
-        Participant memory p = getParticipant(msg.sender);
-        uint pi = getParticipantIndex(msg.sender);
+        Participant memory p = _getParticipant(msg.sender);
+        uint pIndex = _getParticipantIndex(msg.sender);
         
-        if (pi < participants.length) {
-            participants[pi] = Participant(p.addr, true, p.votedAgainst);
+        if (pIndex < participants.length) {
+            participants[pIndex] = Participant(p.addr, true, p.votedAgainst);
             spouse1 = Spouse(spouse1.addr, spouse1.isWed, false, spouse1.agreedOnWedding);
             spouse2 = Spouse(spouse2.addr, spouse2.isWed, false, spouse2.agreedOnWedding);
         }
     }
 
+    // This function lets the fiancés agree on the list of participants that has accepted the invitation.
     function agreeOnParticipants() public onlyEngaged {
-        if (!spouse1.agreedOnParticipants && msg.sender == spouse1.addr) {
+        if (msg.sender == spouse1.addr) {
             spouse1 = Spouse(spouse1.addr, spouse1.isWed, true, spouse1.agreedOnWedding);
         } else {
             spouse2 = Spouse(spouse2.addr, spouse2.isWed, true, spouse2.agreedOnWedding);
         }
     }
 
+    // This function lets any of the fiancés revoke the engagement. This sets the relevant fields to the default values.
     function revokeEngagement() public onlyEngaged {
-        spouse1 = Spouse(address(0), false, false, false);
-        spouse2 = Spouse(address(0), false, false, false);
+        delete spouse1;
+        delete spouse2;
+        delete dateTime;
+        delete additionalInfo;
+        delete participants;
     }
 
+    // This function lets participants that has accepted the invitation vote against the wedding.
     function voteAgainst() public onlyConfirmedParticipant {
-        Participant memory p = getParticipant(msg.sender);
-        uint pi = getParticipantIndex(msg.sender);
+        Participant memory p = _getParticipant(msg.sender);
+        uint pi = _getParticipantIndex(msg.sender);
 
         if (pi < participants.length) {
             participants[pi] = Participant(p.addr, p.confirmed, true);
         }
     }
 
+    // This function lets the two fiancés agree to getting wed if they have agreed on invited participants, 
+    // half of the participants that has accepted the incitation has not voted against, 
+    // and the current time is within 24 hours after the wedding time.
+    // If they both have agreed to be wed, the certificate (NFT) of the wedding is minted.
     function wed() public onlyEngaged bothAgreedOnParticipants halfHasNotVotedAgainst isTimeValid {
-        if (!spouse1.agreedOnWedding && msg.sender == spouse1.addr) {
+        if (msg.sender == spouse1.addr) {
             spouse1 = Spouse(spouse1.addr, spouse1.isWed, spouse1.agreedOnParticipants, true);
         } else {
             spouse2 = Spouse(spouse2.addr, spouse2.isWed, spouse2.agreedOnParticipants, true);
@@ -186,12 +213,13 @@ contract Wedding is ERC721, ERC721URIStorage {
         if (spouse1.agreedOnWedding && spouse2.agreedOnWedding) {
             spouse1 = Spouse(spouse1.addr, true, spouse1.agreedOnParticipants, spouse1.agreedOnWedding);
             spouse2 = Spouse(spouse2.addr, true, spouse2.agreedOnParticipants, spouse2.agreedOnWedding);
+            _mintCertificate();
         }
+    }  
 
-    }
-
+    // This function lets spouses and authorized wedding service employees agree on burning the issued certificate.
+    // The first to burn must be one of the spouses.
     function burnCertificate(uint256 tokenId) public onlyEngagedOrService {
-        // Here we assume that burn initiator must be a spouse
         if (burnInitiator == address(0)) {
             if (msg.sender == spouse1.addr || msg.sender == spouse2.addr) {
                 burnInitiator = msg.sender;
@@ -207,18 +235,18 @@ contract Wedding is ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private currentTokenId;
 
-
-
-    function mintCertificate() private {
+    // Mints a certificate of the wedding in form of a NFT.
+    function _mintCertificate() private {
         currentTokenId.increment();
 
         uint256 certId = currentTokenId.current();
         _mint(spouse1.addr, certId);
 
-        _setTokenURI(certId, generateTokenURI());
+        _setTokenURI(certId, _generateTokenURI());
     }
 
-    function generateTokenURI() view private returns (string memory) {
+    // Generates the URI of the token that includes the relevant information of the wedding.
+    function _generateTokenURI() view private returns (string memory) {
         string memory spouse1Addr = Strings.toHexString(uint160(spouse1.addr));
         string memory spouse2Addr = Strings.toHexString(uint160(spouse2.addr));
         string memory dateWed = Strings.toHexString(uint160(dateTime));
@@ -229,6 +257,8 @@ contract Wedding is ERC721, ERC721URIStorage {
         return string(abi.encodePacked('data:application/json;base64,', json));
     }
 
+    // Prohibits transfer of the issued certificate.
+    // Transfers to address 0 is allowed since this represents creation and burn of certificate.
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override virtual {
         require(from == address(0) || to == address(0), "Err: token transfer is BLOCKED");
         super._beforeTokenTransfer(from, to, tokenId);
@@ -241,7 +271,7 @@ contract Wedding is ERC721, ERC721URIStorage {
     function tokenURI(uint256 tokenId)
         public
         view
-        override(ERC721, ERC721URIStorage)
+        override (ERC721, ERC721URIStorage)
         returns (string memory)
     {
         return super.tokenURI(tokenId);

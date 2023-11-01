@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.21+commit.d9974bed"
+		"version": "0.8.22+commit.4fc1097e"
 	},
 	"language": "Solidity",
 	"output": {
@@ -592,11 +592,11 @@
 			]
 		},
 		"contracts/Wedding.sol": {
-			"keccak256": "0xa4f4e0e5682bc35c252439480c14cac6ec597ceb28ecca1a7a26730c210e9b4b",
+			"keccak256": "0x722392d15af63b7e2ba0f0fc4949fc991967046ff2e37006d3c2dbbd04cbe060",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://042d2423b89da53a77201f4ea9ca99cdab1e967368be97765191dc8c85000646",
-				"dweb:/ipfs/QmfVJgCNx4cGokRr7GGt1fe2835WQNcXCBRJedzePdiN4s"
+				"bzz-raw://fe349d6b7647781ecb44b1720303cff52a0253a0392c3258d13fb889505c4209",
+				"dweb:/ipfs/QmNvJqNYr6g31LbS8vcScJqoGWRHSsLMaYMQgaYcu8irRw"
 			]
 		}
 	},
