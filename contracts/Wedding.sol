@@ -95,7 +95,7 @@ contract Wedding is ERC721, ERC721URIStorage {
             }
         }
 
-        require(voteCount*2 < confirmedCount, "Half voted against.");
+        require(voteCount*2 < confirmedCount || voteCount == 0, "Half voted against.");
         _;
     }
 
@@ -233,6 +233,7 @@ contract Wedding is ERC721, ERC721URIStorage {
     Counters.Counter private currentTokenId;
 
     // Mints a certificate of the wedding in form of a NFT.
+    // The certificate is issued to spouse1 by default.
     function _mintCertificate() private {
         currentTokenId.increment();
 
@@ -250,7 +251,7 @@ contract Wedding is ERC721, ERC721URIStorage {
 
         string memory heartSvg = "<?xml version='1.0' encoding='UTF-8' standalone='no'?> <svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' height='315' width='342' > <defs> <style type='text/css'><![CDATA[     .outline { stroke:none; stroke-width:0 } ]]></style> <g id='heart'> <path      d='M0 200 v-200 h200      a100,100 90 0,1 0,200     a100,100 90 0,1 -200,0     z' /> </g> </defs> <desc> a nearly perfect heart     made of two arcs and a right angle </desc> <use xlink:href='#heart' class='outline ' fill='red' /> </svg>";
 
-        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Wedding Certificate", "description": "Wedding Certificate spouse1: ', spouse1Addr,' spouse2: ', spouse2Addr,' date: ', dateWed,'", "image_data": "', bytes(heartSvg), '"}'))));
+        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Wedding Certificate", "description": "Wedding Certificate spouse1: ', spouse1Addr,' spouse2: ', spouse2Addr,' date: ', dateWed,' additionalInfo: ', additionalInfo,'", "image_data": "', bytes(heartSvg), '"}'))));
         return string(abi.encodePacked('data:application/json;base64,', json));
     }
 

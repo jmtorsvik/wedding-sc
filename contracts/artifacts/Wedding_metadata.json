@@ -592,11 +592,11 @@
 			]
 		},
 		"contracts/Wedding.sol": {
-			"keccak256": "0xcaee2c5f6c60ef317a6768e50d0176123b6c20f7ce26628302944989f56698ec",
+			"keccak256": "0x2411c43e63353aabf86f2ed856f33812fa9d6eef4efaaa55de7ef0d12d0240bd",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://d7e1a8c83d3f7e6745c38080bef14d9df7982b3b5f4b651a9ac4179d2d998f4e",
-				"dweb:/ipfs/QmThRjxaanJ4SmxenPZh6Tq6gcnU34ADQoZ9fjL8ywSc8E"
+				"bzz-raw://772f8d1a492784a14262e01b89f7632cafa4d3da6a7778e5bad8f3806d2a7a24",
+				"dweb:/ipfs/QmdmKBiZBSqDtnsBkjPPLAFRkSAisX3XRtcoYM7jKexHUd"
 			]
 		}
 	},
