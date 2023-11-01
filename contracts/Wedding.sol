@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.0;
-// pragma solidity >=0.8.4 <0.9.0;
+pragma solidity ^0.8.2;
 
-// import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-// import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 import "@openzeppelin/contracts@4.7.0/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts@4.7.0/token/ERC721/extensions/ERC721URIStorage.sol";
-
 
 contract Wedding is ERC721, ERC721URIStorage {
     struct Spouse {
@@ -22,7 +18,8 @@ contract Wedding is ERC721, ERC721URIStorage {
     Spouse spouse1;
     Spouse spouse2;
 
-    address[] serviceAddresses = [address(0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2), address(0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db)];
+    // We use the metamask address of one of our group members
+    address[] serviceAddresses = [address(0x03435e8A83fE55572d634128e64D195198af89c0)];
 
     address burnInitiator;
 
